@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTable } from '@angular/material/table';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -36,7 +36,7 @@ interface User {
   template: `
     <div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
       <h2 mat-dialog-title>User Table</h2>
-      <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select</mat-slide-toggle>
+      <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
     </div>
     <mat-dialog-content>
       <cdk-virtual-scroll-viewport itemSize="48" class="virtual-scroll-viewport">
@@ -80,7 +80,7 @@ interface User {
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-              (click)="toggleRow(row)"
+              (click)="toggleRow(row, $event)"
               [class.selected-row]="selection.isSelected(row)">
           </tr>
         </table>
@@ -117,13 +117,15 @@ interface User {
     .mat-column-select {
       overflow: initial;
     }
-  `]
+  `,
+  ],
 })
 export class TableDialogComponent implements OnInit {
   displayedColumns: string[] = ['select', 'id', 'name', 'email', 'phone'];
   dataSource: MatTableDataSource<User>;
   selection = new SelectionModel<User>(true, []);
   isMultiSelect = false;
+  lastSelectedIndex: number | null = null;
 
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
 
@@ -139,11 +141,12 @@ export class TableDialogComponent implements OnInit {
       .subscribe(
         (data) => {
           // Simulate a larger dataset by duplicating the data
-          // const expandedData = Array(50).fill(null).flatMap(() => data);
-          const expandedData = Array(50).fill(null).flatMap((_, i) =>
-              data.map(user => ({
+          const expandedData = Array(50)
+            .fill(null)
+            .flatMap((_, i) =>
+              data.map((user) => ({
                 ...user,
-                id: user.id + i * data.length // Adjust IDs to ensure uniqueness
+                id: user.id + i * data.length, // Adjust IDs to ensure uniqueness
               }))
           );
           this.dataSource.data = expandedData;
@@ -153,14 +156,35 @@ export class TableDialogComponent implements OnInit {
       );
   }
 
-  toggleRow(row: User) {
+  toggleRow(row: User, event: MouseEvent) {
     if (this.isMultiSelect) {
+      if (event.ctrlKey || event.metaKey) {
       this.selection.toggle(row);
+      } else if (event.shiftKey) {
+        this.selectRange(row);
     } else {
       this.selection.clear();
       this.selection.toggle(row);
     }
+    } else {
+      this.selection.clear();
+      this.selection.toggle(row);
+    }
+    this.lastSelectedIndex = this.dataSource.data.indexOf(row);
     console.log('Selected rows:', this.selection.selected);
+  }
+
+  selectRange(row: User) {
+    const currentIndex = this.dataSource.data.indexOf(row);
+    if (this.lastSelectedIndex !== null) {
+      const start = Math.min(this.lastSelectedIndex, currentIndex);
+      const end = Math.max(this.lastSelectedIndex, currentIndex);
+      for (let i = start; i <= end; i++) {
+        this.selection.select(this.dataSource.data[i]);
+      }
+    } else {
+      this.selection.toggle(row);
+    }
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -175,11 +199,18 @@ export class TableDialogComponent implements OnInit {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.data.forEach(row => this.selection.select(row));
+      this.dataSource.data.forEach((row) => this.selection.select(row));
     }
   }
 
   closeDialog() {
     this.dialogRef.close(this.selection.selected);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.selection.clear();
+    }
   }
 }
