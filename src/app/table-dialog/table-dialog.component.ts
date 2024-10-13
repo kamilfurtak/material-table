@@ -139,8 +139,15 @@ export class TableDialogComponent implements OnInit {
       .subscribe(
         (data) => {
           // Simulate a larger dataset by duplicating the data
-          const expandedData = Array(50).fill(null).flatMap(() => data);
+          // const expandedData = Array(50).fill(null).flatMap(() => data);
+          const expandedData = Array(50).fill(null).flatMap((_, i) =>
+              data.map(user => ({
+                ...user,
+                id: user.id + i * data.length // Adjust IDs to ensure uniqueness
+              }))
+          );
           this.dataSource.data = expandedData;
+
         },
         (error) => console.error('Error fetching data:', error)
       );
