@@ -41,7 +41,7 @@ interface User {
       <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
     </div>
     <mat-dialog-content>
-      <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport" [headerEnabled]="false">
+      <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport mat-elevation-z2">
         <table mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
