@@ -1,4 +1,10 @@
-import {AfterViewInit, Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTable } from '@angular/material/table';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -24,6 +30,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
+  [key: string]: any;
 }
 
 @Component({
@@ -67,28 +74,13 @@ interface User {
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase}} </th>
+            <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
           </ng-container>
 
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
-            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Phone </th>
-            <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsHeaders; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsHeaders;"
               (click)="toggleRow(row, $event)"
               [class.selected-row]="selection.isSelected(row)">
           </tr>
@@ -99,39 +91,41 @@ interface User {
       <button mat-button (click)="closeDialog()">Close</button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .dialog-header {
-      cursor: move;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background-color: #f5f5f5;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    .virtual-scroll-viewport {
-      height: 400px;
-      width: 100%;
-    }
-    table {
-      width: 100%;
-      table-layout: fixed;
-    }
-    .selected-row {
-      background-color: #f5f5f5;
-    }
-    mat-dialog-content {
-      max-height: 400px;
-      overflow: hidden;
-    }
-    .mat-column-select {
-      overflow: initial;
-    }
-  `,
+  styles: [
+    `
+      .dialog-header {
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .virtual-scroll-viewport {
+        height: 400px;
+        width: 100%;
+      }
+      table {
+        width: 100%;
+        table-layout: fixed;
+      }
+      .selected-row {
+        background-color: #f5f5f5;
+      }
+      mat-dialog-content {
+        max-height: 400px;
+        overflow: hidden;
+      }
+      .mat-column-select {
+        overflow: initial;
+      }
+    `,
   ],
 })
 export class TableDialogComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['select', 'id', 'name', 'email', 'phone'];
+  displayedColumns: string[] | undefined;
+  displayedColumnsHeaders: string[] | undefined;
   dataSource: TableVirtualScrollDataSource<User>;
   selection = new SelectionModel<User>(true, []);
   isMultiSelect = false;
@@ -141,46 +135,52 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private http: HttpClient,
-    private dialogRef: MatDialogRef<TableDialogComponent>
+      private http: HttpClient,
+      private dialogRef: MatDialogRef<TableDialogComponent>
   ) {
     this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
 
   ngOnInit() {
-    this.http.get<User[]>('https://jsonplaceholder.typicode.com/users')
-      .subscribe(
-        (data) => {
-          // Simulate a larger dataset by duplicating the data
-          const expandedData = Array(50)
-            .fill(null)
-            .flatMap((_, i) =>
-              data.map((user) => ({
-                ...user,
-                id: user.id + i * data.length, // Adjust IDs to ensure uniqueness
-              }))
-          );
-          this.dataSource.data = expandedData;
-
-        },
-        (error) => console.error('Error fetching data:', error)
-      );
+    this.http
+        .get<User[]>('https://jsonplaceholder.typicode.com/users')
+        .subscribe(
+            (data) => {
+              // Simulate a larger dataset by duplicating the data
+              const expandedData = Array(50)
+                  .fill(null)
+                  .flatMap((_, i) =>
+                      data.map((user) => ({
+                        ...user,
+                        id: user.id + i * data.length, // Adjust IDs to ensure uniqueness
+                      }))
+                  );
+              this.dataSource.data = expandedData;
+              this.updateDisplayedColumns(expandedData[0]);
+            },
+            (error) => console.error('Error fetching data:', error)
+        );
   }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
 
+  updateDisplayedColumns(sampleData: User) {
+    this.displayedColumns = Object.keys(sampleData).filter(key => key !== 'address' && key !== 'company');
+    this.displayedColumnsHeaders = ['select', ...this.displayedColumns];
+  }
+
   toggleRow(row: User, event: MouseEvent) {
     if (this.isMultiSelect) {
       if (event.ctrlKey || event.metaKey) {
-      this.selection.toggle(row);
+        this.selection.toggle(row);
       } else if (event.shiftKey) {
         this.selectRange(row);
-    } else {
-      this.selection.clear();
-      this.selection.toggle(row);
-    }
+      } else {
+        this.selection.clear();
+        this.selection.toggle(row);
+      }
     } else {
       this.selection.clear();
       this.selection.toggle(row);
@@ -202,14 +202,12 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
 
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
   toggleAllRows() {
     if (this.isAllSelected()) {
       this.selection.clear();
