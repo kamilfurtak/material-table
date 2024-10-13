@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTable } from '@angular/material/table';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -8,10 +8,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import {
+  ScrollingModule,
+  CdkVirtualScrollViewport,
+} from '@angular/cdk/scrolling';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatTableDataSource } from '@angular/material/table';
-import {TableVirtualScrollDataSource, TableVirtualScrollModule} from "ng-table-virtual-scroll";
+import { MatSortModule, MatSort } from '@angular/material/sort';
+import {
+  TableVirtualScrollDataSource,
+  TableVirtualScrollModule,
+} from 'ng-table-virtual-scroll';
 
 interface User {
   id: number;
@@ -33,7 +39,8 @@ interface User {
     FormsModule,
     DragDropModule,
     ScrollingModule,
-    TableVirtualScrollModule
+    MatSortModule,
+    TableVirtualScrollModule,
   ],
   template: `
     <div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
@@ -42,7 +49,7 @@ interface User {
     </div>
     <mat-dialog-content>
       <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport mat-elevation-z2">
-        <table mat-table [dataSource]="dataSource">
+        <table mat-table [dataSource]="dataSource" matSort>
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
               <mat-checkbox (change)="$event ? toggleAllRows() : null"
@@ -61,22 +68,22 @@ interface User {
           </ng-container>
 
           <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
           </ng-container>
 
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
             <td mat-cell *matCellDef="let element"> {{element.name}} </td>
           </ng-container>
 
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef> Email </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
             <td mat-cell *matCellDef="let element"> {{element.email}} </td>
           </ng-container>
 
           <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef> Phone </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Phone </th>
             <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
           </ng-container>
 
@@ -123,7 +130,7 @@ interface User {
   `,
   ],
 })
-export class TableDialogComponent implements OnInit {
+export class TableDialogComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['select', 'id', 'name', 'email', 'phone'];
   dataSource: TableVirtualScrollDataSource<User>;
   selection = new SelectionModel<User>(true, []);
@@ -131,6 +138,7 @@ export class TableDialogComponent implements OnInit {
   lastSelectedIndex: number | null = null;
 
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private http: HttpClient,
@@ -157,6 +165,10 @@ export class TableDialogComponent implements OnInit {
         },
         (error) => console.error('Error fetching data:', error)
       );
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
   }
 
   toggleRow(row: User, event: MouseEvent) {
