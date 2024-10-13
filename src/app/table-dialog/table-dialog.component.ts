@@ -11,6 +11,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
+import {TableVirtualScrollModule} from "ng-table-virtual-scroll";
 
 interface User {
   id: number;
@@ -31,7 +32,8 @@ interface User {
     MatCheckboxModule,
     FormsModule,
     DragDropModule,
-    ScrollingModule
+    ScrollingModule,
+    TableVirtualScrollModule
   ],
   template: `
     <div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
@@ -39,7 +41,7 @@ interface User {
       <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
     </div>
     <mat-dialog-content>
-      <cdk-virtual-scroll-viewport itemSize="48" class="virtual-scroll-viewport">
+      <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport" [headerEnabled]="false">
         <table mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
