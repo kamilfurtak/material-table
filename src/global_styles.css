@@ -17,3 +17,9 @@ html, body {
 .draggable-dialog .mat-mdc-dialog-surface {
   overflow: hidden;
 }
+
+table {
+  user-select: none; /* Standard syntax */
+  -webkit-user-select: none; /* For Safari */
+  -ms-user-select: none; /* For IE/Edge */
+}
