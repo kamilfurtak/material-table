@@ -11,7 +11,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
-import {TableVirtualScrollModule} from "ng-table-virtual-scroll";
+import {TableVirtualScrollDataSource, TableVirtualScrollModule} from "ng-table-virtual-scroll";
 
 interface User {
   id: number;
@@ -108,6 +108,7 @@ interface User {
     }
     table {
       width: 100%;
+      table-layout: fixed;
     }
     .selected-row {
       background-color: #f5f5f5;
@@ -124,7 +125,7 @@ interface User {
 })
 export class TableDialogComponent implements OnInit {
   displayedColumns: string[] = ['select', 'id', 'name', 'email', 'phone'];
-  dataSource: MatTableDataSource<User>;
+  dataSource: TableVirtualScrollDataSource<User>;
   selection = new SelectionModel<User>(true, []);
   isMultiSelect = false;
   lastSelectedIndex: number | null = null;
@@ -135,7 +136,7 @@ export class TableDialogComponent implements OnInit {
     private http: HttpClient,
     private dialogRef: MatDialogRef<TableDialogComponent>
   ) {
-    this.dataSource = new MatTableDataSource<User>([]);
+    this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
 
   ngOnInit() {
