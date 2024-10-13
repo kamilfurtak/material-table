@@ -1,0 +1,19 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 30px;
+}
+
+html, body {
+  height: 100%;
+}
+
+.draggable-dialog .mat-mdc-dialog-container {
+  padding: 0;
+}
+
+.draggable-dialog .mat-mdc-dialog-surface {
+  overflow: hidden;
+}
