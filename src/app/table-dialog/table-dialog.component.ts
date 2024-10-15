@@ -58,7 +58,6 @@ interface User {
   template: `
     <div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
       <h2 mat-dialog-title>User Table</h2>
-      <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
     </div>
     <mat-dialog-content>
       <div class="table-container mat-elevation-z8">
@@ -98,6 +97,9 @@ interface User {
           </tr>
         </table>
       </cdk-virtual-scroll-viewport>
+        <mat-toolbar class="table-toolbar">
+          <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
+        </mat-toolbar>
       </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -113,7 +115,7 @@ interface User {
         justify-content: space-between;
         padding: 10px 20px;
         background-color: #f5f5f5;
-        border-bottom: 1px solid #e0e0e0;
+        /*border-bottom: 1px solid #e0e0e0;*/
     }
     mat-dialog-content {
       padding: 0 !important;
@@ -129,7 +131,8 @@ interface User {
       min-height: 48px;
       padding: 0 16px;
       background-color: #fafafa;
-      border-bottom: 1px solid #e0e0e0;
+      /*border-bottom: 1px solid #e0e0e0;*/
+      border: 1px solid #e0e0e0;
       }
       .virtual-scroll-viewport {
       flex: 1;
