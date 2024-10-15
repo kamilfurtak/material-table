@@ -24,9 +24,9 @@ import {
   TableVirtualScrollDataSource,
   TableVirtualScrollModule,
 } from 'ng-table-virtual-scroll';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatIconModule} from "@angular/material/icon";
 
 interface User {
   id: number;
@@ -91,8 +91,8 @@ interface User {
             <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsHeaders; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsHeaders;"
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsHeaders!; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsHeaders!;"
               (click)="toggleRow(row, $event)"
               [class.selected-row]="selection.isSelected(row)">
           </tr>
