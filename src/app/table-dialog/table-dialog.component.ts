@@ -24,6 +24,9 @@ import {
   TableVirtualScrollDataSource,
   TableVirtualScrollModule,
 } from 'ng-table-virtual-scroll';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface User {
   id: number;
@@ -48,6 +51,9 @@ interface User {
     ScrollingModule,
     MatSortModule,
     TableVirtualScrollModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatTooltipModule,
   ],
   template: `
     <div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
@@ -55,7 +61,13 @@ interface User {
       <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
     </div>
     <mat-dialog-content>
-      <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport mat-elevation-z2">
+      <div class="table-container mat-elevation-z8">
+        <mat-toolbar class="table-toolbar">
+          <button mat-icon-button (click)="removeSelectedItems()" [disabled]="!selection.hasValue()" matTooltip="Remove selected items">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-toolbar>
+        <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport">
         <table mat-table [dataSource]="dataSource" matSort>
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
@@ -86,6 +98,7 @@ interface User {
           </tr>
         </table>
       </cdk-virtual-scroll-viewport>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button (click)="closeDialog()">Close</button>
@@ -101,27 +114,54 @@ interface User {
         padding: 10px 20px;
         background-color: #f5f5f5;
         border-bottom: 1px solid #e0e0e0;
+    }
+    mat-dialog-content {
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    .table-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .table-toolbar {
+      min-height: 48px;
+      padding: 0 16px;
+      background-color: #fafafa;
+      border-bottom: 1px solid #e0e0e0;
       }
       .virtual-scroll-viewport {
-        height: 400px;
+      flex: 1;
         width: 100%;
       }
       table {
         width: 100%;
-        table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
       }
-      .selected-row {
+    th:last-child, td:last-child {
+      border-right: none;
+    }
+    th {
         background-color: #f5f5f5;
+      font-weight: bold;
+      text-align: left;
       }
-      mat-dialog-content {
-        max-height: 400px;
-        overflow: hidden;
+    .selected-row {
+      background-color: #e8f0fe;
       }
       .mat-column-select {
         overflow: initial;
+      width: 50px;
+      padding-right: 8px;
       }
-    `,
-  ],
+  `],
 })
 export class TableDialogComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] | undefined;
@@ -167,7 +207,9 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   }
 
   updateDisplayedColumns(sampleData: User) {
-    this.displayedColumns = Object.keys(sampleData).filter(key => key !== 'address' && key !== 'company');
+    this.displayedColumns = Object.keys(sampleData).filter(
+      (key) => key !== 'address' && key !== 'company'
+    );
     this.displayedColumnsHeaders = ['select', ...this.displayedColumns];
   }
 
@@ -214,6 +256,12 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
     } else {
       this.dataSource.data.forEach((row) => this.selection.select(row));
     }
+  }
+
+  removeSelectedItems() {
+    const selectedIds = this.selection.selected.map(item => item.id);
+    this.dataSource.data = this.dataSource.data.filter(item => !selectedIds.includes(item.id));
+    this.selection.clear();
   }
 
   closeDialog() {
