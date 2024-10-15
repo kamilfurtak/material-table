@@ -99,7 +99,10 @@ interface ColumnDef {
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"
                 (click)="toggleRow(row, $event)"
-                [class.selected-row]="selection.isSelected(row)">
+                [class.selected-row]="selection.isSelected(row)"
+                [class.hovered-row]="hoveredRow === row"
+                (mouseenter)="hoveredRow = row"
+                (mouseleave)="hoveredRow = null">
             </tr>
           </table>
         </cdk-virtual-scroll-viewport>
@@ -162,12 +165,16 @@ interface ColumnDef {
     .selected-row {
       background-color: #e8f0fe;
     }
+    .hovered-row {
+      background-color: #f5f5f5;
+    }
     .mat-column-select {
       overflow: initial;
       width: 50px;
       padding-right: 8px;
     }
-  `],
+  `,
+  ],
 })
 export class TableDialogComponent implements OnInit, AfterViewInit {
   columns: ColumnDef[] = [];
@@ -176,6 +183,7 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   selection = new SelectionModel<User>(true, []);
   isMultiSelect = false;
   lastSelectedIndex: number | null = null;
+  hoveredRow: User | null = null;
 
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
   @ViewChild(MatSort) sort!: MatSort;
@@ -219,7 +227,10 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
           header: key.charAt(0).toUpperCase() + key.slice(1),
           cell: (element: User) => `${element[key]}`,
         }));
-    this.displayedColumns = ['select', ...this.columns.map((col) => col.columnDef)];
+    this.displayedColumns = [
+      'select',
+      ...this.columns.map((col) => col.columnDef),
+    ];
   }
 
   toggleRow(row: User, event: MouseEvent) {
@@ -268,8 +279,10 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   }
 
   removeSelectedItems() {
-    const selectedIds = this.selection.selected.map(item => item.id);
-    this.dataSource.data = this.dataSource.data.filter(item => !selectedIds.includes(item.id));
+    const selectedIds = this.selection.selected.map((item) => item.id);
+    this.dataSource.data = this.dataSource.data.filter(
+      (item) => !selectedIds.includes(item.id)
+    );
     this.selection.clear();
   }
 
@@ -281,6 +294,28 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       this.selection.clear();
+    } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.handleArrowKeyNavigation(event, event.key === 'ArrowUp' ? -1 : 1);
+    }
+  }
+
+  handleArrowKeyNavigation(event: KeyboardEvent, direction: number) {
+    const currentIndex = this.lastSelectedIndex !== null
+      ? this.lastSelectedIndex
+      : -1;
+    const newIndex = Math.max(0, Math.min(currentIndex + direction, this.dataSource.data.length - 1));
+
+    if (newIndex !== currentIndex) {
+      const newRow = this.dataSource.data[newIndex];
+      if (!this.isMultiSelect || (!event.shiftKey && !event.ctrlKey && !event.metaKey)) {
+        this.selection.clear();
+}
+      this.selection.toggle(newRow);
+      this.lastSelectedIndex = newIndex;
+
+      // Scroll to the selected row
+      this.viewport.scrollToIndex(newIndex);
     }
   }
 }
