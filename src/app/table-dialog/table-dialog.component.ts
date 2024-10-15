@@ -1,32 +1,33 @@
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   HostListener,
   OnInit,
   ViewChild,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatTableModule, MatTable } from '@angular/material/table';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { MatTableModule } from "@angular/material/table";
+import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { FormsModule } from "@angular/forms";
+import { HttpClient } from "@angular/common/http";
+import { DragDropModule } from "@angular/cdk/drag-drop";
 import {
-  ScrollingModule,
   CdkVirtualScrollViewport,
-} from '@angular/cdk/scrolling';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+  ScrollingModule,
+} from "@angular/cdk/scrolling";
+import { SelectionModel } from "@angular/cdk/collections";
+import { MatSort, MatSortModule } from "@angular/material/sort";
 import {
   TableVirtualScrollDataSource,
   TableVirtualScrollModule,
-} from 'ng-table-virtual-scroll';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
+} from "ng-table-virtual-scroll";
+import { MatIconModule } from "@angular/material/icon";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 interface User {
   id: number;
@@ -43,7 +44,7 @@ interface ColumnDef {
 }
 
 @Component({
-  selector: 'app-table-dialog',
+  selector: "app-table-dialog",
   standalone: true,
   imports: [
     CommonModule,
@@ -62,52 +63,100 @@ interface ColumnDef {
     MatTooltipModule,
   ],
   template: `
-    <div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
+    <div
+      class="dialog-header"
+      cdkDrag
+      cdkDragRootElement=".cdk-overlay-pane"
+      cdkDragHandle
+    >
       <h2 mat-dialog-title>User Table</h2>
+      <div class="dialog-controls">
+        <button
+          mat-icon-button
+          (click)="minimizeDialog()"
+          matTooltip="Minimize"
+        >
+          <mat-icon>remove</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="maximizeDialog()"
+          matTooltip="Maximize"
+        >
+          <mat-icon>crop_square</mat-icon>
+        </button>
+        <button mat-icon-button (click)="closeDialog()" matTooltip="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
     </div>
     <mat-dialog-content>
       <div class="table-container mat-elevation-z8">
         <mat-toolbar class="table-toolbar">
-          <button mat-icon-button (click)="removeSelectedItems()" [disabled]="!selection.hasValue()" matTooltip="Remove selected items">
+          <button
+            mat-icon-button
+            (click)="removeSelectedItems()"
+            [disabled]="!selection.hasValue()"
+            matTooltip="Remove selected items"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         </mat-toolbar>
-        <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport">
+        <cdk-virtual-scroll-viewport
+          tvsItemSize="48"
+          class="virtual-scroll-viewport"
+        >
           <table mat-table [dataSource]="dataSource" matSort>
             <ng-container matColumnDef="select">
               <th mat-header-cell *matHeaderCellDef>
-                <mat-checkbox (change)="$event ? toggleAllRows() : null"
-                              [checked]="selection.hasValue() && isAllSelected()"
-                              [indeterminate]="selection.hasValue() && !isAllSelected()"
-                              [disabled]="!isMultiSelect">
+                <mat-checkbox
+                  (change)="$event ? toggleAllRows() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                  [disabled]="!isMultiSelect"
+                >
                 </mat-checkbox>
               </th>
               <td mat-cell *matCellDef="let row">
-                <mat-checkbox (click)="$event.stopPropagation()"
-                              (change)="$event ? selection.toggle(row) : null"
-                              [checked]="selection.isSelected(row)"
-                              [disabled]="!isMultiSelect">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? selection.toggle(row) : null"
+                  [checked]="selection.isSelected(row)"
+                  [disabled]="!isMultiSelect"
+                >
                 </mat-checkbox>
               </td>
             </ng-container>
 
-            <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnDef">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.header}} </th>
-              <td mat-cell *matCellDef="let row"> {{column.cell(row)}} </td>
+            <ng-container
+              *ngFor="let column of columns"
+              [matColumnDef]="column.columnDef"
+            >
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{ column.header }}
+              </th>
+              <td mat-cell *matCellDef="let row">{{ column.cell(row) }}</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-                (click)="toggleRow(row, $event)"
-                [class.selected-row]="selection.isSelected(row)"
-                [class.hovered-row]="hoveredRow === row"
-                (mouseenter)="hoveredRow = row"
-                (mouseleave)="hoveredRow = null">
-            </tr>
+            <tr
+              mat-header-row
+              *matHeaderRowDef="displayedColumns; sticky: true"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              (click)="toggleRow(row, $event)"
+              [class.selected-row]="selection.isSelected(row)"
+              [class.hovered-row]="hoveredRow === row"
+              (mouseenter)="hoveredRow = row"
+              (mouseleave)="hoveredRow = null"
+            ></tr>
           </table>
         </cdk-virtual-scroll-viewport>
         <mat-toolbar class="table-toolbar">
-          <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
+          <mat-slide-toggle [(ngModel)]="isMultiSelect"
+            >Multi-Select Mode</mat-slide-toggle
+          >
         </mat-toolbar>
       </div>
     </mat-dialog-content>
@@ -115,65 +164,75 @@ interface ColumnDef {
       <button mat-button (click)="closeDialog()">Close</button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .dialog-header {
-      cursor: move;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background-color: #f5f5f5;
-    }
-    mat-dialog-content {
-      padding: 0 !important;
-      overflow: hidden !important;
-    }
-    .table-container {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-    }
-    .table-toolbar {
-      min-height: 48px;
-      padding: 0 16px;
-      background-color: #fafafa;
-      border: 1px solid #e0e0e0;
-    }
-    .virtual-scroll-viewport {
-      flex: 1;
-      width: 100%;
-    }
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #e0e0e0;
-      border-right: 1px solid #e0e0e0;
-    }
-    th:last-child, td:last-child {
-      border-right: none;
-    }
-    th {
-      background-color: #f5f5f5;
-      font-weight: bold;
-      text-align: left;
-    }
-    .selected-row {
-      background-color: #e8f0fe;
-    }
-    .hovered-row {
-      background-color: #f5f5f5;
-    }
-    .mat-column-select {
-      overflow: initial;
-      width: 50px;
-      padding-right: 8px;
-    }
-  `,
+  styles: [
+    `
+      .dialog-header {
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background-color: #f5f5f5;
+      }
+      .dialog-controls {
+        display: flex;
+      }
+      mat-dialog-content {
+        padding: 0 !important;
+        overflow: hidden !important;
+        transition: height 0.3s ease-in-out;
+      }
+      mat-dialog-content.minimized {
+        height: 0 !important;
+      }
+      .table-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+      .table-toolbar {
+        min-height: 48px;
+        padding: 0 16px;
+        background-color: #fafafa;
+        border: 1px solid #e0e0e0;
+      }
+      .virtual-scroll-viewport {
+        flex: 1;
+        width: 100%;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        border-right: 1px solid #e0e0e0;
+      }
+      th:last-child,
+      td:last-child {
+        border-right: none;
+      }
+      th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+        text-align: left;
+      }
+      .selected-row {
+        background-color: #e8f0fe;
+      }
+      .hovered-row {
+        background-color: #f5f5f5;
+      }
+      .mat-column-select {
+        overflow: initial;
+        width: 50px;
+        padding-right: 8px;
+      }
+    `,
   ],
 })
 export class TableDialogComponent implements OnInit, AfterViewInit {
@@ -184,35 +243,38 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   isMultiSelect = false;
   lastSelectedIndex: number | null = null;
   hoveredRow: User | null = null;
+  isMinimized = false;
+  originalSize: { width: string; height: string } | null = null;
 
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-      private http: HttpClient,
-      private dialogRef: MatDialogRef<TableDialogComponent>
+    private http: HttpClient,
+    private dialogRef: MatDialogRef<TableDialogComponent>,
+    private elementRef: ElementRef,
   ) {
     this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
 
   ngOnInit() {
     this.http
-        .get<User[]>('https://jsonplaceholder.typicode.com/users')
-        .subscribe(
-            (data) => {
-              const expandedData = Array(50)
-                  .fill(null)
-                  .flatMap((_, i) =>
-                      data.map((user) => ({
-                        ...user,
-                        id: user.id + i * data.length,
-                      }))
-                  );
-              this.dataSource.data = expandedData;
-              this.updateDisplayedColumns(expandedData[0]);
-            },
-            (error) => console.error('Error fetching data:', error)
-        );
+      .get<User[]>("https://jsonplaceholder.typicode.com/users")
+      .subscribe(
+        (data) => {
+          const expandedData = Array(50)
+            .fill(null)
+            .flatMap((_, i) =>
+              data.map((user) => ({
+                ...user,
+                id: user.id + i * data.length,
+              })),
+            );
+          this.dataSource.data = expandedData;
+          this.updateDisplayedColumns(expandedData[0]);
+        },
+        (error) => console.error("Error fetching data:", error),
+      );
   }
 
   ngAfterViewInit() {
@@ -221,14 +283,14 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
 
   updateDisplayedColumns(sampleData: User) {
     this.columns = Object.keys(sampleData)
-        .filter((key) => key !== 'address' && key !== 'company')
-        .map((key) => ({
-          columnDef: key,
-          header: key.charAt(0).toUpperCase() + key.slice(1),
-          cell: (element: User) => `${element[key]}`,
-        }));
+      .filter((key) => key !== "address" && key !== "company")
+      .map((key) => ({
+        columnDef: key,
+        header: key.charAt(0).toUpperCase() + key.slice(1),
+        cell: (element: User) => `${element[key]}`,
+      }));
     this.displayedColumns = [
-      'select',
+      "select",
       ...this.columns.map((col) => col.columnDef),
     ];
   }
@@ -248,7 +310,7 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
       this.selection.toggle(row);
     }
     this.lastSelectedIndex = this.dataSource.data.indexOf(row);
-    console.log('Selected rows:', this.selection.selected);
+    console.log("Selected rows:", this.selection.selected);
   }
 
   selectRange(row: User) {
@@ -281,7 +343,7 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   removeSelectedItems() {
     const selectedIds = this.selection.selected.map((item) => item.id);
     this.dataSource.data = this.dataSource.data.filter(
-      (item) => !selectedIds.includes(item.id)
+      (item) => !selectedIds.includes(item.id),
     );
     this.selection.clear();
   }
@@ -290,27 +352,55 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
     this.dialogRef.close(this.selection.selected);
   }
 
-  @HostListener('window:keydown', ['$event'])
+  minimizeDialog() {
+    this.isMinimized = !this.isMinimized;
+  }
+
+  maximizeDialog() {
+    const dialogContainer =
+      this.elementRef.nativeElement.closest(".cdk-overlay-pane");
+    if (dialogContainer) {
+      if (!this.originalSize) {
+        this.originalSize = {
+          width: dialogContainer.style.width,
+          height: dialogContainer.style.height,
+        };
+        dialogContainer.style.width = "100vw";
+        dialogContainer.style.height = "100vh";
+      } else {
+        dialogContainer.style.width = this.originalSize.width;
+        dialogContainer.style.height = this.originalSize.height;
+        this.originalSize = null;
+      }
+    }
+  }
+
+  @HostListener("window:keydown", ["$event"])
   handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       this.selection.clear();
-    } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
       event.preventDefault();
-      this.handleArrowKeyNavigation(event, event.key === 'ArrowUp' ? -1 : 1);
+      this.handleArrowKeyNavigation(event, event.key === "ArrowUp" ? -1 : 1);
     }
   }
 
   handleArrowKeyNavigation(event: KeyboardEvent, direction: number) {
-    const currentIndex = this.lastSelectedIndex !== null
-      ? this.lastSelectedIndex
-      : -1;
-    const newIndex = Math.max(0, Math.min(currentIndex + direction, this.dataSource.data.length - 1));
+    const currentIndex =
+      this.lastSelectedIndex !== null ? this.lastSelectedIndex : -1;
+    const newIndex = Math.max(
+      0,
+      Math.min(currentIndex + direction, this.dataSource.data.length - 1),
+    );
 
     if (newIndex !== currentIndex) {
       const newRow = this.dataSource.data[newIndex];
-      if (!this.isMultiSelect || (!event.shiftKey && !event.ctrlKey && !event.metaKey)) {
+      if (
+        !this.isMultiSelect ||
+        (!event.shiftKey && !event.ctrlKey && !event.metaKey)
+      ) {
         this.selection.clear();
-}
+      }
       this.selection.toggle(newRow);
       this.lastSelectedIndex = newIndex;
 
