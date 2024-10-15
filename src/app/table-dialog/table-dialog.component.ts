@@ -10,7 +10,11 @@ import {
 } from "@angular/core";
 import { CommonModule, Location } from "@angular/common";
 import { MatTableModule } from "@angular/material/table";
-import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
+import {
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -31,6 +35,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { SubscriptionLike } from "rxjs";
+import { DialogRegistryService } from "../services/dialog-registry.service";
 
 interface User {
   id: number;
@@ -164,6 +169,7 @@ interface ColumnDef {
       </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
+      <button mat-button (click)="openChildDialog()">Open Child Dialog</button>
       <button mat-button (click)="closeDialog()">Close</button>
     </mat-dialog-actions>
   `,
@@ -263,6 +269,8 @@ export class TableDialogComponent implements OnInit, OnDestroy, AfterViewInit {
     private elementRef: ElementRef,
     private renderer: Renderer2,
     private location: Location,
+    private dialogRegistry: DialogRegistryService,
+    public dialog: MatDialog,
   ) {
     this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
@@ -467,5 +475,24 @@ export class TableDialogComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.locationSubscription) {
       this.locationSubscription.unsubscribe();
     }
+  }
+
+  openChildDialog() {
+    const dialogRef = this.dialog.open(TableDialogComponent, {
+      width: "900px",
+      height: "700px",
+      maxWidth: "100vw",
+      maxHeight: "100vh",
+      panelClass: "draggable-dialog",
+      hasBackdrop: false,
+    });
+
+    this.dialogRegistry.registerDialog(dialogRef, this.dialogRef);
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.dialogRegistry.closeChildDialogs(dialogRef);
+      this.dialogRegistry.unregisterDialog(dialogRef);
+      console.log("The dialog was closed");
+    });
   }
 }

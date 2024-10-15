@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { TableDialogComponent } from "./table-dialog/table-dialog.component";
+import { DialogRegistryService } from "./services/dialog-registry.service";
 
 @Component({
   selector: "app-root",
@@ -24,7 +25,10 @@ import { TableDialogComponent } from "./table-dialog/table-dialog.component";
   ],
 })
 export class AppComponent {
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    public dialog: MatDialog,
+    private dialogRegistry: DialogRegistryService,
+  ) {}
 
   openDialog() {
     const dialogRef = this.dialog.open(TableDialogComponent, {
@@ -36,7 +40,11 @@ export class AppComponent {
       hasBackdrop: false,
     });
 
+    this.dialogRegistry.registerDialog(dialogRef);
+
     dialogRef.afterClosed().subscribe((result) => {
+      this.dialogRegistry.closeChildDialogs(dialogRef);
+      this.dialogRegistry.unregisterDialog(dialogRef);
       console.log("The dialog was closed");
     });
   }
