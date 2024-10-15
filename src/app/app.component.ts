@@ -28,8 +28,8 @@ export class AppComponent {
 
   openDialog() {
     const dialogRef = this.dialog.open(TableDialogComponent, {
-      width: "80%",
-      height: "80%",
+      width: "900px",
+      height: "700px",
       maxWidth: "100vw",
       maxHeight: "100vh",
       panelClass: "draggable-dialog",
