@@ -4,6 +4,7 @@ import {
   ElementRef,
   HostListener,
   OnInit,
+  Renderer2,
   ViewChild,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
@@ -244,7 +245,11 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   lastSelectedIndex: number | null = null;
   hoveredRow: User | null = null;
   isMinimized = false;
-  originalSize: { width: string; height: string } | null = null;
+  private originalSize: {
+    width: string;
+    height: string;
+    transform: string;
+  } | null = null;
 
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
   @ViewChild(MatSort) sort!: MatSort;
@@ -253,6 +258,7 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private dialogRef: MatDialogRef<TableDialogComponent>,
     private elementRef: ElementRef,
+    private renderer: Renderer2,
   ) {
     this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
@@ -356,21 +362,51 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
     this.isMinimized = !this.isMinimized;
   }
 
+  private isMaximized = false;
+
   maximizeDialog() {
     const dialogContainer =
       this.elementRef.nativeElement.closest(".cdk-overlay-pane");
     if (dialogContainer) {
-      if (!this.originalSize) {
+      if (!this.isMaximized) {
+        const computedStyle = window.getComputedStyle(dialogContainer);
         this.originalSize = {
-          width: dialogContainer.style.width,
-          height: dialogContainer.style.height,
+          width: dialogContainer.style.width || computedStyle.width,
+          height: dialogContainer.style.height || computedStyle.height,
+          transform: dialogContainer.style.transform || computedStyle.transform,
         };
-        dialogContainer.style.width = "100vw";
-        dialogContainer.style.height = "100vh";
+
+        this.renderer.setStyle(dialogContainer, "width", "100vw");
+        this.renderer.setStyle(dialogContainer, "height", "100vh");
+        this.renderer.setStyle(dialogContainer, "transform", "none");
+        // this.renderer.setStyle(
+        //   dialogContainer,
+        //   "transition",
+        //   "all 0.3s ease-in-out",
+        // );
+        this.isMaximized = true;
       } else {
-        dialogContainer.style.width = this.originalSize.width;
-        dialogContainer.style.height = this.originalSize.height;
-        this.originalSize = null;
+        this.renderer.setStyle(
+          dialogContainer,
+          "width",
+          this.originalSize!.width,
+        );
+        this.renderer.setStyle(
+          dialogContainer,
+          "height",
+          this.originalSize!.height,
+        );
+        this.renderer.setStyle(
+          dialogContainer,
+          "transform",
+          this.originalSize!.transform,
+        );
+        // this.renderer.setStyle(
+        //   dialogContainer,
+        //   "transition",
+        //   "all 0.3s ease-in-out",
+        // );
+        this.isMaximized = false;
       }
     }
   }
