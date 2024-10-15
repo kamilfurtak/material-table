@@ -24,9 +24,9 @@ import {
   TableVirtualScrollDataSource,
   TableVirtualScrollModule,
 } from 'ng-table-virtual-scroll';
-import {MatTooltipModule} from "@angular/material/tooltip";
-import {MatToolbarModule} from "@angular/material/toolbar";
-import {MatIconModule} from "@angular/material/icon";
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface User {
   id: number;
@@ -34,6 +34,12 @@ interface User {
   email: string;
   phone: string;
   [key: string]: any;
+}
+
+interface ColumnDef {
+  columnDef: string;
+  header: string;
+  cell: (element: User) => string;
 }
 
 @Component({
@@ -67,36 +73,36 @@ interface User {
           </button>
         </mat-toolbar>
         <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport">
-        <table mat-table [dataSource]="dataSource" matSort>
-          <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef>
-              <mat-checkbox (change)="$event ? toggleAllRows() : null"
-                            [checked]="selection.hasValue() && isAllSelected()"
-                            [indeterminate]="selection.hasValue() && !isAllSelected()"
-                            [disabled]="!isMultiSelect">
-              </mat-checkbox>
-            </th>
-            <td mat-cell *matCellDef="let row">
-              <mat-checkbox (click)="$event.stopPropagation()"
-                            (change)="$event ? selection.toggle(row) : null"
-                            [checked]="selection.isSelected(row)"
-                            [disabled]="!isMultiSelect">
-              </mat-checkbox>
-            </td>
-          </ng-container>
+          <table mat-table [dataSource]="dataSource" matSort>
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                              [checked]="selection.hasValue() && isAllSelected()"
+                              [indeterminate]="selection.hasValue() && !isAllSelected()"
+                              [disabled]="!isMultiSelect">
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selection.toggle(row) : null"
+                              [checked]="selection.isSelected(row)"
+                              [disabled]="!isMultiSelect">
+                </mat-checkbox>
+              </td>
+            </ng-container>
 
-          <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase}} </th>
-            <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
-          </ng-container>
+            <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnDef">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.header}} </th>
+              <td mat-cell *matCellDef="let row"> {{column.cell(row)}} </td>
+            </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsHeaders!; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsHeaders!;"
-              (click)="toggleRow(row, $event)"
-              [class.selected-row]="selection.isSelected(row)">
-          </tr>
-        </table>
-      </cdk-virtual-scroll-viewport>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                (click)="toggleRow(row, $event)"
+                [class.selected-row]="selection.isSelected(row)">
+            </tr>
+          </table>
+        </cdk-virtual-scroll-viewport>
         <mat-toolbar class="table-toolbar">
           <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
         </mat-toolbar>
@@ -106,16 +112,14 @@ interface User {
       <button mat-button (click)="closeDialog()">Close</button>
     </mat-dialog-actions>
   `,
-  styles: [
-    `
-      .dialog-header {
-        cursor: move;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 20px;
-        background-color: #f5f5f5;
-        /*border-bottom: 1px solid #e0e0e0;*/
+  styles: [`
+    .dialog-header {
+      cursor: move;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #f5f5f5;
     }
     mat-dialog-content {
       padding: 0 !important;
@@ -131,15 +135,14 @@ interface User {
       min-height: 48px;
       padding: 0 16px;
       background-color: #fafafa;
-      /*border-bottom: 1px solid #e0e0e0;*/
       border: 1px solid #e0e0e0;
-      }
-      .virtual-scroll-viewport {
+    }
+    .virtual-scroll-viewport {
       flex: 1;
-        width: 100%;
-      }
-      table {
-        width: 100%;
+      width: 100%;
+    }
+    table {
+      width: 100%;
       border-collapse: separate;
       border-spacing: 0;
     }
@@ -147,28 +150,28 @@ interface User {
       padding: 12px;
       border-bottom: 1px solid #e0e0e0;
       border-right: 1px solid #e0e0e0;
-      }
+    }
     th:last-child, td:last-child {
       border-right: none;
     }
     th {
-        background-color: #f5f5f5;
+      background-color: #f5f5f5;
       font-weight: bold;
       text-align: left;
-      }
+    }
     .selected-row {
       background-color: #e8f0fe;
-      }
-      .mat-column-select {
-        overflow: initial;
+    }
+    .mat-column-select {
+      overflow: initial;
       width: 50px;
       padding-right: 8px;
-      }
+    }
   `],
 })
 export class TableDialogComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] | undefined;
-  displayedColumnsHeaders: string[] | undefined;
+  columns: ColumnDef[] = [];
+  displayedColumns: string[] = [];
   dataSource: TableVirtualScrollDataSource<User>;
   selection = new SelectionModel<User>(true, []);
   isMultiSelect = false;
@@ -189,13 +192,12 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
         .get<User[]>('https://jsonplaceholder.typicode.com/users')
         .subscribe(
             (data) => {
-              // Simulate a larger dataset by duplicating the data
               const expandedData = Array(50)
                   .fill(null)
                   .flatMap((_, i) =>
                       data.map((user) => ({
                         ...user,
-                        id: user.id + i * data.length, // Adjust IDs to ensure uniqueness
+                        id: user.id + i * data.length,
                       }))
                   );
               this.dataSource.data = expandedData;
@@ -210,10 +212,14 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   }
 
   updateDisplayedColumns(sampleData: User) {
-    this.displayedColumns = Object.keys(sampleData).filter(
-      (key) => key !== 'address' && key !== 'company'
-    );
-    this.displayedColumnsHeaders = ['select', ...this.displayedColumns];
+    this.columns = Object.keys(sampleData)
+        .filter((key) => key !== 'address' && key !== 'company')
+        .map((key) => ({
+          columnDef: key,
+          header: key.charAt(0).toUpperCase() + key.slice(1),
+          cell: (element: User) => `${element[key]}`,
+        }));
+    this.displayedColumns = ['select', ...this.columns.map((col) => col.columnDef)];
   }
 
   toggleRow(row: User, event: MouseEvent) {
