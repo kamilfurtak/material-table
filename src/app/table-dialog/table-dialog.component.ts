@@ -3,11 +3,12 @@ import {
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { CommonModule, Location } from "@angular/common";
 import { MatTableModule } from "@angular/material/table";
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
@@ -29,6 +30,7 @@ import {
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { SubscriptionLike } from "rxjs";
 
 interface User {
   id: number;
@@ -236,7 +238,7 @@ interface ColumnDef {
     `,
   ],
 })
-export class TableDialogComponent implements OnInit, AfterViewInit {
+export class TableDialogComponent implements OnInit, OnDestroy, AfterViewInit {
   columns: ColumnDef[] = [];
   displayedColumns: string[] = [];
   dataSource: TableVirtualScrollDataSource<User>;
@@ -253,17 +255,27 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
 
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
   @ViewChild(MatSort) sort!: MatSort;
+  private locationSubscription: SubscriptionLike | undefined;
 
   constructor(
     private http: HttpClient,
     private dialogRef: MatDialogRef<TableDialogComponent>,
     private elementRef: ElementRef,
     private renderer: Renderer2,
+    private location: Location,
   ) {
     this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
 
   ngOnInit() {
+    // Push a new state to the history when the dialog opens
+    history.pushState(null, "", "");
+
+    // Subscribe to the popstate event
+    this.locationSubscription = this.location.subscribe(() => {
+      this.closeDialog();
+    });
+
     this.http
       .get<User[]>("https://jsonplaceholder.typicode.com/users")
       .subscribe(
@@ -355,6 +367,11 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
   }
 
   closeDialog() {
+    // Remove the popstate event listener
+    if (this.locationSubscription) {
+      this.locationSubscription.unsubscribe();
+    }
+
     this.dialogRef.close(this.selection.selected);
   }
 
@@ -442,6 +459,13 @@ export class TableDialogComponent implements OnInit, AfterViewInit {
 
       // Scroll to the selected row
       this.viewport.scrollToIndex(newIndex);
+    }
+  }
+
+  ngOnDestroy() {
+    // Unsubscribe to avoid memory leaks
+    if (this.locationSubscription) {
+      this.locationSubscription.unsubscribe();
     }
   }
 }
