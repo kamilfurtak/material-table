@@ -36,6 +36,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { SubscriptionLike } from "rxjs";
 import { DialogRegistryService } from "../services/dialog-registry.service";
+import jsPDF from 'jspdf';
 
 interface User {
   id: number;
@@ -108,6 +109,13 @@ interface ColumnDef {
             matTooltip="Remove selected items"
           >
             <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="exportToPDF()"
+            matTooltip="Export to PDF"
+          >
+            <mat-icon>picture_as_pdf</mat-icon>
           </button>
         </mat-toolbar>
         <cdk-virtual-scroll-viewport
@@ -494,5 +502,41 @@ export class TableDialogComponent implements OnInit, OnDestroy, AfterViewInit {
       this.dialogRegistry.unregisterDialog(dialogRef);
       console.log("The dialog was closed");
     });
+  }
+
+  exportToPDF() {
+    const doc = new jsPDF();
+    const tableData = this.dataSource.data;
+    const columns = this.columns.map(col => col.header);
+
+    let y = 10;
+    doc.setFontSize(16);
+    doc.text('User Table', 14, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+
+    // Add headers
+    columns.forEach((header, i) => {
+      doc.text(header, 14 + i * 40, y);
+    });
+    y += 10;
+
+    doc.setTextColor(0);
+    // Add data
+    tableData.forEach((row, index) => {
+      columns.forEach((col, i) => {
+        doc.text(String(row[col.toLowerCase()]), 14 + i * 40, y);
+      });
+      y += 10;
+
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    doc.save('user_table.pdf');
   }
 }
