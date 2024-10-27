@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -24,11 +24,15 @@ import { DialogRegistryService } from "./services/dialog-registry.service";
     `,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private dialogRegistry: DialogRegistryService,
   ) {}
+
+  ngOnInit() {
+    this.openDialog();
+  }
 
   openDialog() {
     const dialogRef = this.dialog.open(TableDialogComponent, {
