@@ -5,6 +5,8 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { TableDialogComponent } from "./table-dialog/table-dialog.component";
 import { DialogRegistryService } from "./services/dialog-registry.service";
 import { AngularOpenlayersModule } from "ng-openlayers";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: "app-root",
@@ -14,13 +16,19 @@ import { AngularOpenlayersModule } from "ng-openlayers";
     MatButtonModule,
     MatDialogModule,
     AngularOpenlayersModule,
+    MatToolbarModule,
+    MatIconModule,
   ],
   template: `
-    <h1>Angular Material Table Demo</h1>
-    <button mat-raised-button color="primary" (click)="openDialog()">
-      Open Table Dialog
-    </button>
-    <div style="height: 500px">
+    <mat-toolbar color="primary">
+      <span>Angular Material Table Demo</span>
+      <span style="flex: 1 1 auto"></span>
+      <button mat-icon-button (click)="openDialog()" matTooltip="Open Table">
+        <mat-icon>table_chart</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <div class="map-container">
       <aol-map>
         <aol-view [zoom]="2">
           <aol-coordinate
@@ -42,8 +50,19 @@ import { AngularOpenlayersModule } from "ng-openlayers";
   styles: [
     `
       :host {
-        display: block;
-        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .map-container {
+        flex: 1;
+        width: 100%;
+      }
+
+      aol-map {
+        width: 100%;
+        height: 100%;
       }
     `,
   ],

@@ -1,13 +1,14 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-body {
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  margin: 0;
-  padding: 30px;
-}
-
 html, body {
   height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .draggable-dialog .mat-mdc-dialog-container {
@@ -19,7 +20,7 @@ html, body {
 }
 
 table {
-  user-select: none; /* Standard syntax */
-  -webkit-user-select: none; /* For Safari */
-  -ms-user-select: none; /* For IE/Edge */
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
