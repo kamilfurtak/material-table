@@ -52,7 +52,13 @@ export class DialogComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private dialogRegistry: DialogRegistryService,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-  ) {}
+  ) {
+    // Set up dialog close handler
+    this.dialogRef.beforeClosed().subscribe(() => {
+      this.dialogRegistry.closeChildDialogs(this.dialogRef);
+      this.dialogRegistry.unregisterDialog(this.dialogRef);
+    });
+  }
 
   ngOnInit() {
     history.pushState(null, "", "");
@@ -91,11 +97,6 @@ export class DialogComponent implements OnInit, OnDestroy {
     });
 
     this.dialogRegistry.registerDialog(dialogRef, this.dialogRef);
-
-    dialogRef.afterClosed().subscribe(() => {
-      this.dialogRegistry.closeChildDialogs(dialogRef);
-      this.dialogRegistry.unregisterDialog(dialogRef);
-    });
   }
 
   ngOnDestroy() {
