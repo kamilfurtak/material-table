@@ -1,0 +1,29 @@
+<content><div class="dialog-header" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
+  <h2 mat-dialog-title>User Table</h2>
+  <div class="dialog-controls">
+    <button mat-icon-button (click)="minimizeDialog()" matTooltip="Minimize">
+      <mat-icon>remove</mat-icon>
+    </button>
+    <button mat-icon-button (click)="maximizeDialog()" matTooltip="Maximize">
+      <mat-icon>crop_square</mat-icon>
+    </button>
+    <button mat-icon-button (click)="closeDialog()" matTooltip="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+
+<mat-dialog-content [class.minimized]="isMinimized">
+  <app-data-table
+    [columns]="columns"
+    [displayedColumns]="displayedColumns"
+    [isMultiSelect]="isMultiSelect"
+    (isMultiSelectChange)="isMultiSelect = $event"
+    (exportPdf)="exportToPDF()"
+  ></app-data-table>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="openChildDialog()">Open Child Dialog</button>
+  <button mat-button (click)="closeDialog()">Close</button>
+</mat-dialog-actions></content>

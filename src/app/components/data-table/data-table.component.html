@@ -1,0 +1,74 @@
+<div class="table-container mat-elevation-z8">
+  <mat-toolbar class="table-toolbar">
+    <button
+      mat-icon-button
+      (click)="tableState.removeSelectedItems()"
+      [disabled]="!tableState.selection.hasValue()"
+      matTooltip="Remove selected items"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      (click)="exportToPDF()"
+      matTooltip="Export to PDF"
+    >
+      <mat-icon>picture_as_pdf</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <cdk-virtual-scroll-viewport tvsItemSize="48" class="virtual-scroll-viewport">
+    <table mat-table [dataSource]="tableState.dataSource" matSort>
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox
+            (change)="$event ? tableState.toggleAllRows() : null"
+            [checked]="tableState.selection.hasValue() && tableState.isAllSelected()"
+            [indeterminate]="tableState.selection.hasValue() && !tableState.isAllSelected()"
+            [disabled]="!isMultiSelect"
+          >
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="$event ? tableState.selection.toggle(row) : null"
+            [checked]="tableState.selection.isSelected(row)"
+            [disabled]="!isMultiSelect"
+          >
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container
+        *ngFor="let column of tableState.columns"
+        [matColumnDef]="column.columnDef"
+      >
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ column.header }}
+        </th>
+        <td mat-cell *matCellDef="let row">{{ column.cell(row) }}</td>
+      </ng-container>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="tableState.displayedColumns; sticky: true"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: tableState.displayedColumns"
+        (click)="toggleRow(row, $event)"
+        [class.selected-row]="tableState.selection.isSelected(row)"
+        [class.hovered-row]="hoveredRow === row"
+        (mouseenter)="hoveredRow = row"
+        (mouseleave)="hoveredRow = null"
+        (keydown.arrowUp)="handleArrowNavigation(-1, $event)"
+        (keydown.arrowDown)="handleArrowNavigation(1, $event)"
+      ></tr>
+    </table>
+  </cdk-virtual-scroll-viewport>
+
+  <mat-toolbar class="table-toolbar">
+    <mat-slide-toggle [(ngModel)]="isMultiSelect">Multi-Select Mode</mat-slide-toggle>
+  </mat-toolbar>
+</div>

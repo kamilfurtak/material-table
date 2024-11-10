@@ -1,23 +1,24 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
-import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { TableDialogComponent } from "./table-dialog/table-dialog.component";
-import { DialogRegistryService } from "./services/dialog-registry.service";
-import { AngularOpenlayersModule } from "ng-openlayers";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { AngularOpenlayersModule } from "ng-openlayers";
+
+import { DialogService } from "./components/dialog/dialog.service";
 
 @Component({
   selector: "app-root",
   standalone: true,
+  providers: [DialogService],
   imports: [
     CommonModule,
     MatButtonModule,
-    MatDialogModule,
     AngularOpenlayersModule,
     MatToolbarModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   template: `
     <mat-toolbar color="primary">
@@ -68,31 +69,17 @@ import { MatIconModule } from "@angular/material/icon";
   ],
 })
 export class AppComponent implements OnInit {
-  constructor(
-    public dialog: MatDialog,
-    private dialogRegistry: DialogRegistryService,
-  ) {}
+  constructor(private dialogService: DialogService) {}
 
   ngOnInit() {
     this.openDialog();
   }
 
   openDialog() {
-    const dialogRef = this.dialog.open(TableDialogComponent, {
+    this.dialogService.openDialog({
       width: "900px",
       height: "700px",
-      maxWidth: "100vw",
-      maxHeight: "100vh",
-      panelClass: "draggable-dialog",
-      hasBackdrop: false,
-    });
-
-    this.dialogRegistry.registerDialog(dialogRef);
-
-    dialogRef.afterClosed().subscribe((result) => {
-      this.dialogRegistry.closeChildDialogs(dialogRef);
-      this.dialogRegistry.unregisterDialog(dialogRef);
-      console.log("The dialog was closed");
+      title: "User Table",
     });
   }
 }

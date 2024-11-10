@@ -35,8 +35,8 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { SubscriptionLike } from "rxjs";
-import { DialogRegistryService } from "../services/dialog-registry.service";
-import { PdfExportService } from '../pdf-export.service';
+import { DialogRegistryService } from "../components/dialog/dialog-registry.service";
+import { PdfExportService } from "../pdf-export.service";
 
 interface User {
   id: number;
@@ -279,7 +279,7 @@ export class TableDialogComponent implements OnInit, OnDestroy, AfterViewInit {
     private location: Location,
     private dialogRegistry: DialogRegistryService,
     public dialog: MatDialog,
-    private pdfExportService: PdfExportService
+    private pdfExportService: PdfExportService,
   ) {
     this.dataSource = new TableVirtualScrollDataSource<User>([]);
   }
@@ -507,7 +507,7 @@ export class TableDialogComponent implements OnInit, OnDestroy, AfterViewInit {
 
   exportToPDF() {
     const tableData = this.dataSource.data;
-    const columns = this.columns.map(col => col.header);
+    const columns = this.columns.map((col) => col.header);
     console.log(tableData, columns);
     this.pdfExportService.exportToPDF(tableData, columns);
   }

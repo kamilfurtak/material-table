@@ -1,10 +1,11 @@
 {
-  "name": "angular-starter",
+  "name": "angular-material-table",
   "private": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "dev": "ng serve"
   },
   "dependencies": {
     "@angular/animations": "^18.1.0",
