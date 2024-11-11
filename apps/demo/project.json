@@ -1,0 +1,57 @@
+{
+  "name": "demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "namedChunks": true,
+          "optimization": false,
+          "sourceMap": true
+        },
+        "production": {
+          "aot": true,
+          "extractLicenses": true,
+          "namedChunks": false,
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false
+        }
+      },
+      "options": {
+        "assets": [],
+        "index": "apps/demo/src/index.html",
+        "browser": "apps/demo/src/main.ts",
+        "outputPath": "dist/apps/demo",
+        "polyfills": ["zone.js"],
+        "scripts": [],
+        "styles": ["apps/demo/src/global_styles.css", "node_modules/ol/ol.css"],
+        "tsConfig": "apps/demo/tsconfig.app.json"
+      }
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "development": {
+          "buildTarget": "demo:build:development"
+        },
+        "production": {
+          "buildTarget": "demo:build:production"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/demo/**/*.ts", "apps/demo/**/*.html"]
+      }
+    }
+  },
+  "prefix": "app",
+  "projectType": "application",
+  "generators": {},
+  "sourceRoot": "apps/demo/src"
+}
