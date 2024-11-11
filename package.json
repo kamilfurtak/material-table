@@ -3,10 +3,10 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "dev": "ng serve",
-    "lint": "ng lint"
+    "start": "nx serve",
+    "build": "nx build",
+    "dev": "nx serve",
+    "lint": "nx lint"
   },
   "dependencies": {
     "@angular/animations": "^18.1.0",
@@ -28,10 +28,20 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.1.0",
+    "@angular-devkit/core": "^18.1.0",
+    "@angular-devkit/schematics": "^18.1.0",
     "@angular/cli": "^18.1.0",
     "@angular/compiler-cli": "^18.1.0",
+    "@nx/angular": "20.0.12",
+    "@nx/js": "20.0.12",
+    "@nx/workspace": "20.0.12",
+    "@schematics/angular": "^18.1.0",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
     "angular-eslint": "18.4.0",
     "eslint": "^9.13.0",
+    "nx": "20.0.12",
     "prettier": "3.3.3",
     "typescript": "~5.5.0",
     "typescript-eslint": "8.10.0"
