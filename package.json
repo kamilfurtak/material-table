@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "nx serve",
+    "start": "nx serve demo",
     "build": "nx build",
     "dev": "nx serve demo",
     "lint": "nx lint"
