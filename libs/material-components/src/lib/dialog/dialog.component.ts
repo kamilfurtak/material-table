@@ -4,6 +4,7 @@ import {
   Inject,
   OnDestroy,
   OnInit,
+  Renderer2,
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import {
@@ -44,6 +45,7 @@ export class DialogComponent implements OnInit, OnDestroy {
   isMinimized = false;
   private isMaximized = false;
   private locationSubscription: SubscriptionLike | undefined;
+  private originalHeight: string | null = null;
 
   constructor(
     private dialogRef: MatDialogRef<DialogComponent>,
@@ -51,9 +53,9 @@ export class DialogComponent implements OnInit, OnDestroy {
     private location: Location,
     private dialogService: DialogService,
     private dialogRegistry: DialogRegistryService,
+    private renderer: Renderer2,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
   ) {
-    // Set up dialog close handler
     this.dialogRef.beforeClosed().subscribe(() => {
       this.dialogRegistry.closeChildDialogs(this.dialogRef);
       this.dialogRegistry.unregisterDialog(this.dialogRef);
@@ -75,12 +77,21 @@ export class DialogComponent implements OnInit, OnDestroy {
   }
 
   minimizeDialog() {
+    const dialogContainer = this.elementRef.nativeElement.closest('.cdk-overlay-pane');
+    if (!dialogContainer) return;
+
+    if (!this.isMinimized) {
+      this.originalHeight = dialogContainer.style.height;
+      this.renderer.setStyle(dialogContainer, 'height', '64px');
+    } else {
+      this.renderer.setStyle(dialogContainer, 'height', this.originalHeight);
+    }
+    
     this.isMinimized = !this.isMinimized;
   }
 
   maximizeDialog() {
-    const dialogContainer =
-      this.elementRef.nativeElement.closest('.cdk-overlay-pane');
+    const dialogContainer = this.elementRef.nativeElement.closest('.cdk-overlay-pane');
     if (dialogContainer) {
       this.isMaximized = this.dialogService.toggleMaximize(
         dialogContainer,

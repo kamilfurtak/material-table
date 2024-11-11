@@ -7,7 +7,7 @@
   <h2 mat-dialog-title>{{ data.title }}</h2>
   <div class="dialog-controls">
     <button mat-icon-button (click)="minimizeDialog()" matTooltip="Minimize">
-      <mat-icon>remove</mat-icon>
+      <mat-icon>{{ isMinimized ? 'maximize' : 'minimize' }}</mat-icon>
     </button>
     <button mat-icon-button (click)="maximizeDialog()" matTooltip="Maximize">
       <mat-icon>crop_square</mat-icon>
@@ -22,7 +22,7 @@
   <lib-data-table></lib-data-table>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions [class.minimized]="isMinimized" align="end">
   <button mat-button (click)="openChildDialog()">Open Child Dialog</button>
   <button mat-button (click)="closeDialog()">Close</button>
 </mat-dialog-actions>
