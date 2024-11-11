@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 
-import { DialogService } from './components/dialog/dialog.service';
+import { DialogService } from '../../../../libs/material-components/src/lib/dialog/dialog.service';
 import { MapComponent } from './map/map.component';
 import { MatTooltip } from '@angular/material/tooltip';
 

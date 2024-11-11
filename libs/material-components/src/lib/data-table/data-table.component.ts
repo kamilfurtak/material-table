@@ -15,13 +15,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { User } from '../../models/user.model';
+import { User } from '../models/user.model';
 import { TableStateService } from './table-state.service';
-import { UserService } from '../../services/user.service';
+import { UserService } from '../services/user.service';
 import { PdfExportService } from './pdf-export.service';
 
 @Component({
-  selector: 'app-data-table',
+  selector: 'lib-data-table',
   standalone: true,
   imports: [
     CommonModule,

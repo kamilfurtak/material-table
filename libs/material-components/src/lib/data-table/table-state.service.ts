@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
-import { ColumnDef, User } from '../../models/user.model';
+import { ColumnDef, User } from '../models/user.model';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 
 @Injectable({
