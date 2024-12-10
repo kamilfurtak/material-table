@@ -27,19 +27,18 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    DragDropModule,
-    MatIconModule,
-    MatTooltipModule,
-    DataTableComponent,
-  ],
-  templateUrl: './dialog.component.html',
-  styleUrls: ['./dialog.component.scss'],
+    selector: 'app-dialog',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        DragDropModule,
+        MatIconModule,
+        MatTooltipModule,
+        DataTableComponent,
+    ],
+    templateUrl: './dialog.component.html',
+    styleUrls: ['./dialog.component.scss']
 })
 export class DialogComponent implements OnInit, OnDestroy {
   isMinimized = false;

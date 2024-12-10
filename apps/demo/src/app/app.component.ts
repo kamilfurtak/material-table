@@ -8,16 +8,15 @@ import { MapComponent } from './map/map.component';
 import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MapComponent,
-    MatTooltip,
-  ],
-  template: `
+    selector: 'app-root',
+    imports: [
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MapComponent,
+        MatTooltip,
+    ],
+    template: `
     <mat-toolbar color="primary">
       <span>Angular Material Table Demo</span>
       <span style="flex: 1 1 auto"></span>
@@ -27,7 +26,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     </mat-toolbar>
 
     <app-map></app-map>
-  `,
+  `
 })
 export class AppComponent implements OnInit {
   constructor(private dialogService: DialogService) {}

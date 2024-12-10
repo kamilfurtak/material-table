@@ -21,24 +21,23 @@ import { UserService } from '../services/user.service';
 import { PdfExportService } from './pdf-export.service';
 
 @Component({
-  selector: 'lib-data-table',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatSlideToggleModule,
-    MatCheckboxModule,
-    FormsModule,
-    ScrollingModule,
-    MatSortModule,
-    TableVirtualScrollModule,
-    MatIconModule,
-    MatToolbarModule,
-    MatTooltipModule,
-  ],
-  templateUrl: './data-table.component.html',
-  styleUrls: ['./data-table.component.scss'],
+    selector: 'lib-data-table',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        MatCheckboxModule,
+        FormsModule,
+        ScrollingModule,
+        MatSortModule,
+        TableVirtualScrollModule,
+        MatIconModule,
+        MatToolbarModule,
+        MatTooltipModule,
+    ],
+    templateUrl: './data-table.component.html',
+    styleUrls: ['./data-table.component.scss']
 })
 export class DataTableComponent implements OnInit, AfterViewInit {
   hoveredRow: User | null = null;

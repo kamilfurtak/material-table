@@ -10,19 +10,18 @@ import { AngularOpenlayersModule } from 'ng-openlayers';
 import { MapLayerService } from './services/map-layer.service';
 
 @Component({
-  selector: 'app-map',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatSidenavModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatCheckboxModule,
-    FormsModule,
-    AngularOpenlayersModule,
-  ],
-  template: `
+    selector: 'app-map',
+    imports: [
+        CommonModule,
+        MatSidenavModule,
+        MatButtonModule,
+        MatIconModule,
+        MatListModule,
+        MatCheckboxModule,
+        FormsModule,
+        AngularOpenlayersModule,
+    ],
+    template: `
     <mat-sidenav-container class="sidenav-container">
       <mat-sidenav
         #sidenav
@@ -93,8 +92,8 @@ import { MapLayerService } from './services/map-layer.service';
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [
-    `
+    styles: [
+        `
       :host {
         display: flex;
         flex-direction: column;
@@ -155,7 +154,7 @@ import { MapLayerService } from './services/map-layer.service';
         height: 48px;
       }
     `,
-  ],
+    ]
 })
 export class MapComponent {
   sidenavOpened = false;
